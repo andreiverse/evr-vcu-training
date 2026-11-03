@@ -103,6 +103,7 @@ void setupTask5()
   TCCR2A |= 1 << COM2B1;
   TCCR2A &= ~(1 << COM2B0);
 
+  OCR2A = 249;
   OCR2B = dutyCycleTask5;
 }
 
@@ -113,12 +114,12 @@ void loopTask5()
   static uint8_t direction = 1;
   static uint32_t lastUpdateTask5 = 0;
 
-  if ((now - lastUpdateTask5) > 10)
+  if ((now - lastUpdateTask5) > 5)
   {
     dutyCycleTask5 += direction;
     OCR2B = dutyCycleTask5;
 
-    if (dutyCycleTask5 >= 250)
+    if (dutyCycleTask5 >= 230)
       direction = -1;
     if (dutyCycleTask5 <= 10)
       direction = 1;
