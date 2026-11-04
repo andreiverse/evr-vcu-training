@@ -6,10 +6,10 @@ void setup() {
   setupTask1x4();
   setupTask2();
   setupTask3();
-  setupTask5();
+  setupTask5x6();
 }
 
 void loop() {
   loopTask2();
-  loopTask5();
+  loopTask5x6();
 }
