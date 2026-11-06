@@ -1,5 +1,5 @@
-#include <Arduino.h>
 #include "tasks.h"
+#include <Arduino.h>
 
 void setup() {
   Serial.begin(9600);

@@ -1,0 +1,19 @@
+name: compile
+
+on: [push, pull_request]
+
+jobs:
+    compile:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+            - name: Configure Arduino CLI
+              uses: arduino/setup-arduino-cli@v2
+            - name: Install platform
+              run: |
+                arduino-cli core update-index
+                arduino-cli core isntall arduino:avr:uno
+            - name: Compile sketch
+              run: arduino-cli compile . --fqbn arduino:avr:uno -v

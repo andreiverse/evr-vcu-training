@@ -7,8 +7,7 @@ bool pressed_previous = false;
 // Digital 7, 6 - leds
 // Digial 0 - button to gnd
 
-void setupTask2()
-{
+void setupTask2() {
   DDRD &= ~(1 << DD0);
   PORTD |= (1 << PORTD0);
 
@@ -16,12 +15,10 @@ void setupTask2()
   DDRD |= 1 << PD6;
 }
 
-void loopTask2()
-{
-  bool pressed = (PIND & (1 << PIND0)) == 0;  
+void loopTask2() {
+  bool pressed = (PIND & (1 << PIND0)) == 0;
 
-  if (pressed == 0 && pressed_previous == 1)
-  {
+  if (pressed == 0 && pressed_previous == 1) {
     Serial.println("Pressed!");
     led_toggle = !led_toggle;
   }
@@ -31,11 +28,9 @@ void loopTask2()
   PORTD &= ~(1 << PD7);
   PORTD &= ~(1 << PD6);
 
-  if (led_toggle)
-  {
+  if (led_toggle) {
     PORTD |= 1 << PD7;
-  } else
-  {
+  } else {
     PORTD |= 1 << PD6;
   }
 }
