@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "inc/utils.h"
 #include <Arduino.h>
 
 uint8_t duty_cycle = 0;
