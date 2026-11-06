@@ -14,6 +14,6 @@ jobs:
             - name: Install platform
               run: |
                 arduino-cli core update-index
-                arduino-cli core isntall arduino:avr:uno
+                arduino-cli core install arduino:avr:uno
             - name: Compile sketch
               run: arduino-cli compile . --fqbn arduino:avr:uno -v
