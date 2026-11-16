@@ -4,12 +4,14 @@
 uint8_t is_twi_ok = 0;
 
 
+#define I2C_SLAVE_ADDRESS 0b0000000
+
 uint8_t getI2cStatus()
 {
   return TWSR & 0xF8;
 }
 
-static bool waitTwint()
+static bool i2cWaitTWINT()
 {
   uint32_t t0 = micros();
   while (!(TWCR & (1 << TWINT)))
@@ -25,7 +27,7 @@ static bool waitTwint()
 }
 
 
-bool i2cLog(uint8_t expected, const char *message)
+bool i2cVerifyStatus(uint8_t expected, const char *message)
 {
   uint8_t status = getI2cStatus();
 
@@ -45,16 +47,16 @@ bool i2cLog(uint8_t expected, const char *message)
   return true;
 }
 
-bool start()
+bool i2cStart()
 {
   if (!is_twi_ok) return 0;
 
   TWCR = (1 << TWEN | 1 << TWINT | 1 << TWSTA); // Enable TWI, reset TWINT and do start
 
-  return waitTwint() && i2cLog(0x08, "start");
+  return i2cWaitTWINT() && i2cVerifyStatus(0x08, "start");
 }
 
-bool stop()
+bool i2cStop()
 {
   TWCR = (1 << TWEN | 1 << TWINT | 1 << TWSTO); // Enable TWI, reset TWINT and do stop
   uint32_t t0 = micros();
@@ -65,85 +67,85 @@ bool stop()
   return true;
 }
 
-bool sendByte(uint8_t b, const char *msg)
+bool i2cSendByte(uint8_t b, const char *msg)
 {
   if (!is_twi_ok) return 0;
   TWDR = b;
   TWCR = (1 << TWEN) | (1 << TWINT);
-  return waitTwint() && i2cLog(0x28, msg);
+  return i2cWaitTWINT() && i2cVerifyStatus(0x28, msg);
 }
 
-bool addressW()
+bool i2cAddressW()
 {
   if (!is_twi_ok) return 0;
 
-  TWDR = 0b00000000;
+  TWDR = I2C_SLAVE_ADDRESS << 1;
   TWCR = (1 << TWEN | 1 << TWINT); // send
-  return waitTwint() && i2cLog(0x18, "SLA/W");
+  return i2cWaitTWINT() && i2cVerifyStatus(0x18, "SLA/W");
 }
 
-bool registerWrite(uint8_t reg, uint8_t value)
+bool i2cRegisterWrite(uint8_t reg, uint8_t value)
 {
-  if (!start())
+  if (!i2cStart())
   {
-    stop();
+    i2cStop();
     return 0;
   }
 
-  if (!addressW())
+  if (!i2cAddressW())
   {
-    stop();
+    i2cStop();
     return 0;
   } 
   
-  if (!sendByte(reg, "reg address"))
+  if (!i2cSendByte(reg, "reg address"))
   {
-    stop();
+    i2cStop();
     return 0;
   }
 
-  if (!sendByte(value, "reg data"))
+  if (!i2cSendByte(value, "reg data"))
   {
-    stop();
+    i2cStop();
     return 0;
   }
 
-  stop();
+  i2cStop();
   return 1;
 }
 
-bool setupTwi()
+bool i2cSetupDriver()
 {
-  return registerWrite(0x0C, 0x01) && //shutdown
-  registerWrite(0x09, 0x3F) && // decode
-  registerWrite(0x0A, 0x08) && // global intesity
-  registerWrite(0x0B, 0x03) && // scan limit
-  registerWrite(0x0F, 0x00); // test mode
+  return i2cRegisterWrite(0x0C, 0x01) && //shutdown
+  i2cRegisterWrite(0x09, 0x3F) && // decode
+  i2cRegisterWrite(0x0A, 0x08) && // global intesity
+  i2cRegisterWrite(0x0B, 0x03) && // scan limit
+  i2cRegisterWrite(0x0F, 0x00); // test mode
 }
 
-void setupI2c()
+void i2cSetup()
 {
   // 100Khz
   TWSR &= ~(1 << TWPS1 | 1 << TWPS0); // Prescaler = 1
   TWBR = 72;                          // Baud
 }
 
-void loopI2c()
+void i2cLoop()
 {
   if (!is_twi_ok)
   {
     TWCR = 0;
 
     is_twi_ok = 1;
-    Serial.println("twi is not ok, setting up...");
+    Serial.println(F("twi is not ok, setting up..."));
     blockForAbit();
-    is_twi_ok = setupTwi();
+    is_twi_ok = i2cSetupDriver();
     if (is_twi_ok) 
     {
-      Serial.println("setup twi success");
+      Serial.println(F("setup twi success"));
     } else
     {
-      Serial.println("setup twi failure");
+      Serial.println(F("setup twi failure"));
     }
     blockForAbit();
   }

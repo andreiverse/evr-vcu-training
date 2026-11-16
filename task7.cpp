@@ -6,12 +6,12 @@
 uint16_t adc_values[MA_ADC] = {0};
 uint8_t next_i = 0;
 
-void insert_adc(uint16_t val)
+void adcMaInsert(uint16_t val)
 {
   adc_values[((next_i++) % MA_ADC)] = val;
 }
 
-uint16_t average()
+uint16_t adcMaValue()
 {
   uint32_t sum = 0;
   for (int i = 0; i < MA_ADC; i++)
@@ -22,7 +22,7 @@ uint16_t average()
   return (uint16_t)ceil(1.0f * sum / MA_ADC);
 }
 
-void init(uint16_t val)
+void adcMaInit(uint16_t val)
 {
     for (int i = 0; i < MA_ADC; i++)
     {
@@ -32,25 +32,24 @@ void init(uint16_t val)
 
 void setupTask7()
 {
-    setupI2c();
+    i2cSetup();
 }
 
 void loopTask7()
 {
-    loopI2c();
-    insert_adc(ADC);
+    i2cLoop();
+    adcMaInsert(ADC);
 
-    uint64_t now_value = (uint64_t)(min(5000, (average() / 1023.0f) * 5000));
-    static uint64_t last_value = 0;
+    uint32_t now_value = (uint64_t)(min(5000, (adcMaValue() / 1023.0f) * 5000));
+    static uint32_t last_value = 0;
 
     int16_t diff = now_value - last_value;
-    if (
-        (abs(diff) > 15))
-    {
-        registerWrite(0x04, now_value / 1000);
-        registerWrite(0x03, (now_value / 100) % 10);
-        registerWrite(0x02, (now_value / 10) % 10);
-        registerWrite(0x01, now_value % 10);
+    
+    if (abs(diff) > 15) {
+        i2cRegisterWrite(0x04, now_value / 1000);
+        i2cRegisterWrite(0x03, (now_value / 100) % 10);
+        i2cRegisterWrite(0x02, (now_value / 10) % 10);
+        i2cRegisterWrite(0x01, now_value % 10);
         last_value = now_value;
     }
 }

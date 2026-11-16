@@ -19,7 +19,7 @@ void setupTask3() {
 
 ISR(INT0_vect)
 {
-  Serial.println("Task 3: interrupt trigger");
+  Serial.println(F("Task 3: interrupt trigger"));
 
   led_toggle = !led_toggle;
 
