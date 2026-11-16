@@ -3,7 +3,6 @@
 
 uint8_t is_twi_ok = 0;
 
-
 #define I2C_SLAVE_ADDRESS 0b0000000
 
 uint8_t getI2cStatus()
@@ -13,10 +12,11 @@ uint8_t getI2cStatus()
 
 static bool i2cWaitTWINT()
 {
-  uint32_t t0 = micros();
+  uint32_t t0 = 0;
   while (!(TWCR & (1 << TWINT)))
   {
-    if (micros() - t0 > 2000)
+    t0++;
+    if (t0 > 5000)
     {
       Serial.println(F("FAIL: TWINT timeout"));
       is_twi_ok = 0;
@@ -59,10 +59,11 @@ bool i2cStart()
 bool i2cStop()
 {
   TWCR = (1 << TWEN | 1 << TWINT | 1 << TWSTO); // Enable TWI, reset TWINT and do stop
-  uint32_t t0 = micros();
+  uint32_t t0 = 0;
   while (TWCR & (1 << TWSTO))
   {
-    if (micros() - t0 > 2000) { is_twi_ok = 0; return false; }
+    t0++;
+    if (t0 > 5000) { is_twi_ok = 0; return false; }
   }
   return true;
 }
@@ -138,7 +139,7 @@ void i2cLoop()
 
     is_twi_ok = 1;
     Serial.println(F("twi is not ok, setting up..."));
-    blockForAbit();
+    
     is_twi_ok = i2cSetupDriver();
     if (is_twi_ok) 
     {
