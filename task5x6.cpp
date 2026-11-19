@@ -50,26 +50,20 @@ void setupTask5x6() {
 }
 
 void loopTask5x6() {
-  // use less top brightness for a more obvious effect
-  constexpr uint8_t TOP = 100; // /255
-  constexpr uint8_t BOT = 0;   // /255
+  constexpr uint8_t TOP = 20;
+  constexpr uint8_t BOT = 0;
 
   static int8_t direction = 1;
-  static uint32_t last_updated_ms = 0;
 
-  // task 6
-  // map values from ADC (0 - 1023) to PWM 8bit timer (0 - 255)
+  // Task 6
   OCR2A = (ADC / 1023.0f) * 255;
 
-  // task 5
-  duty_cycle += direction;
-
-  OCR2B = duty_cycle;
-
-  if (duty_cycle >= TOP)
+  // Task 5
+  if (OCR2B >= TOP)
     direction = -1;
-  if (duty_cycle <= BOT)
+  else if (OCR2B <= BOT)
     direction = 1;
 
-  blockForAbit();
+  OCR2B += direction;
+
 }

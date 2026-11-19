@@ -1,3 +1,5 @@
+#pragma once
+
 void setupTask1x4();
 void setupTask2();
 void setupTask3();

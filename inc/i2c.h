@@ -1,6 +1,6 @@
+#pragma once
 #include <Arduino.h>
 
-static bool i2cWaitTWINT();
 bool i2cVerifyStatus(uint8_t expected, const char *message);
 bool i2cStart();
 bool i2cStop();

@@ -4,13 +4,14 @@
 uint8_t is_twi_ok = 0;
 
 #define I2C_SLAVE_ADDRESS 0b0000000
+// #define DEBUG_I2c
 
 uint8_t getI2cStatus()
 {
   return TWSR & 0xF8;
 }
 
-static bool i2cWaitTWINT()
+bool i2cWaitTWINT()
 {
   uint32_t t0 = 0;
   while (!(TWCR & (1 << TWINT)))
@@ -18,7 +19,9 @@ static bool i2cWaitTWINT()
     t0++;
     if (t0 > 5000)
     {
+      #ifdef DEBUG_I2c
       Serial.println(F("FAIL: TWINT timeout"));
+      #endif
       is_twi_ok = 0;
       return false;
     }
@@ -33,12 +36,14 @@ bool i2cVerifyStatus(uint8_t expected, const char *message)
 
   if (status != expected)
   {
+    #ifdef DEBUG_I2c
     Serial.print(F("FAIL "));
     Serial.print(message);
     Serial.print(F(": expected 0x"));
     Serial.print(expected, HEX);
     Serial.print(F(", got 0x"));
     Serial.println(status, HEX);
+    #endif
 
     is_twi_ok = 0;
     return false;
@@ -138,9 +143,12 @@ void i2cLoop()
     TWCR = 0;
 
     is_twi_ok = 1;
+    #ifdef DEBUG_I2c
     Serial.println(F("twi is not ok, setting up..."));
-    
+    #endif
     is_twi_ok = i2cSetupDriver();
+    
+    #ifdef DEBUG_I2c
     if (is_twi_ok) 
     {
       Serial.println(F("setup twi success"));
@@ -148,6 +156,8 @@ void i2cLoop()
     {
       Serial.println(F("setup twi failure"));
     }
+    #endif
+
     blockForAbit();
   }
 
