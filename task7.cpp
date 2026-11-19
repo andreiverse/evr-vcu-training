@@ -8,7 +8,7 @@ uint8_t next_i = 0;
 
 void adcMaInsert(uint16_t val)
 {
-  adc_values[((next_i++) % MA_ADC)] = val;
+  adc_values[next_i = (++next_i) % MA_ADC] = val;
 }
 
 uint16_t adcMaValue()
@@ -33,6 +33,7 @@ void adcMaInit(uint16_t val)
 void setupTask7()
 {
     i2cSetup();
+    adcMaInit(ADC);
 }
 
 void loopTask7()
@@ -45,7 +46,7 @@ void loopTask7()
 
     int16_t diff = now_value - last_value;
     
-    if (abs(diff) > 15) {
+    if (abs(diff) > 15 || last_value == 0) {
         i2cRegisterWrite(0x04, now_value / 1000);
         i2cRegisterWrite(0x03, (now_value / 100) % 10);
         i2cRegisterWrite(0x02, (now_value / 10) % 10);

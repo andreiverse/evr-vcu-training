@@ -51,10 +51,10 @@ void setupTask5x6() {
 
 void loopTask5x6() {
   // use less top brightness for a more obvious effect
-  constexpr uint8_t TASK8_TOP = 100; // /255
-  constexpr uint8_t TASK8_BOT = 0;   // /255
+  constexpr uint8_t TOP = 100; // /255
+  constexpr uint8_t BOT = 0;   // /255
 
-  static uint8_t direction = 1;
+  static int8_t direction = 1;
   static uint32_t last_updated_ms = 0;
 
   // task 6
@@ -66,9 +66,9 @@ void loopTask5x6() {
 
   OCR2B = duty_cycle;
 
-  if (duty_cycle >= TASK8_TOP)
+  if (duty_cycle >= TOP)
     direction = -1;
-  if (duty_cycle <= TASK8_BOT)
+  if (duty_cycle <= BOT)
     direction = 1;
 
   blockForAbit();

@@ -21,7 +21,7 @@ void setupTask1x4() {
   OCR1A = 62500;
 
   // enable COMPA interrupt
-  TIMSK1 |= 1 << OCIE2A;
+  TIMSK1 |= 1 << OCIE1A;
 
   // set output on the 3 leds
   DDRC |= 1 << DDC0;
